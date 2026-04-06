@@ -14,4 +14,7 @@ jobs:
       WEB_PORT: 80
     steps:
       - name: Check out ab-utils
-        run: git clone -b ${{ inputs.branch }} https://github.com/CruGlobal/ab-utils.git
+        run: |
+           echo "Head Ref: ${{ github.head_ref }}"
+           echo "Base Ref: ${{ github.base_ref }}"
+           git clone -b ${{ inputs.branch }} https://github.com/elephanteleven/ab-utils.git
