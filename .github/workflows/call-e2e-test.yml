@@ -1,0 +1,17 @@
+name: Cypress E2E Tests
+on:
+  workflow_call:
+    inputs:
+      branch:
+        type: string
+        default: ${{ github.ref_name }}
+jobs:
+  start:
+    name: Cypress E2E Tests
+    runs-on: ubuntu-latest
+    env:
+      STACKNAME: ab
+      WEB_PORT: 80
+    steps:
+      - name: Check out ab-utils
+        run: git clone -b ${{ inputs.branch }} https://github.com/CruGlobal/ab-utils.git

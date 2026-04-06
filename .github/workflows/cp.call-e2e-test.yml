@@ -1,0 +1,90 @@
+name: Cypress E2E Tests
+on:
+  workflow_call:
+    inputs:
+      branch:
+        type: string
+        default: ${{ github.ref_name }}
+jobs:
+  start:
+    name: Cypress E2E Tests
+    runs-on: ubuntu-latest
+    env:
+      STACKNAME: ab
+      WEB_PORT: 80
+    steps:
+      - name: Check out ab-utils
+        run: git clone -b ${{ inputs.branch }} https://github.com/CruGlobal/ab-utils.git
+      - name: Setup Docker Swarm
+        run: docker swarm init
+      - name: Install needed packages
+        run: npm i -g env-cmd https://github.com/CruGlobal/ab-cli pm2@latest
+      - name: Install AB
+        run: appbuilder install $STACKNAME --stack=$STACKNAME --port=$WEB_PORT --dbExpose=false --dbPassword=root --tag=latest --authType=login --relayEnabled=false --pwaURL=http://pwa.site.com --siteURL=http://auth.site.com --tenant.username=admin --tenant.password=admin --tenant.email=neo@thematrix.com --tenant.url=http://localhost:$WEB_PORT
+      - name: Check out kitchen-sink
+        run: git clone https://github.com/CruGlobal/kitchensink_app.git ./${{ env.STACKNAME }}/test/e2e/cypress/e2e/kitchensink_app
+      - name: Wait for taking down containers
+        run: docker wait $(docker ps -aq)
+      - name: Create the Docker volume ${STACKNAME}_libs
+        run: docker run --rm -v ${STACKNAME}_libs:/app/libs -v ./ab-utils:/app/host/ab-utils node:latest bash -c "cp -R /app/host/ab-utils /app/libs && chown -R node:node /app/libs"
+      - name: Write the docker-compose.overide.ab-utils.yml file
+        run: |
+          cat <<EOF > $STACKNAME/docker-compose.overide.ab-utils.yml
+          version: "3.9"
+          volumes:
+            libs:
+          services:
+            api_sails:
+              volumes:
+                - libs:/app/node_modules/@digiserve
+            appbuilder:
+              volumes:
+                - libs:/app/node_modules/@digiserve
+            custom_reports:
+              volumes:
+                - libs:/app/node_modules/@digiserve
+            definition_manager:
+              volumes:
+                - libs:/app/node_modules/@digiserve
+            file_processor:
+              volumes:
+                - libs:/app/node_modules/@digiserve
+            log_manager:
+              volumes:
+                - libs:/app/node_modules/@digiserve
+            notification_email:
+              volumes:
+                - libs:/app/node_modules/@digiserve
+            process_manager:
+              volumes:
+                - libs:/app/node_modules/@digiserve
+            tenant_manager:
+              volumes:
+                - libs:/app/node_modules/@digiserve
+            user_manager:
+              volumes:
+                - libs:/app/node_modules/@digiserve
+          EOF
+      - name: Start up AB
+        run: env-cmd docker stack deploy -c docker-compose.yml -c docker-compose.override.yml -c test/setup/ci-test.overide.yml -c docker-compose.overide.ab-utils.yml $STACKNAME --detach=false
+        working-directory: ./${{ env.STACKNAME }}
+      - name: Wait boot
+        run: sleep 120s
+      - name: Setup logs
+        run: pm2 start ./logs.js -- --toFile logs/ABServices.log
+        working-directory: ./${{ env.STACKNAME }}
+      - name: Run Cypress Tests
+        run: npm run test:e2e:app -- --browser chrome
+        working-directory: ./${{ env.STACKNAME }}
+      - name: Save Screenshots
+        uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: cypress-screenshots
+          path: ${{ env.STACKNAME }}/test/e2e/cypress/screenshots
+      - name: Save AB service logs
+        uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: ABServices.log
+          path: ${{ env.STACKNAME }}/logs/ABServices.log

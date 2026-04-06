@@ -1,0 +1,19 @@
+name: Merging Rules
+on:
+  pull_request:
+    branches: [master]
+permissions:
+  contents: write
+  pull-requests: write
+jobs:
+  run-cypress-e2e-tests:
+    name: Run cypress E2E tests
+    uses: ./.github/workflows/call-e2e-test.yml
+  automerge-pr:
+    name: Automerge a PR
+    needs: run-cypress-e2e-tests
+    uses: ./.github/workflows/call-automerge.yml
+    secrets:
+      access-token: ${{ secrets.GITHUB_TOKEN }}
+    with:
+      pr: ${{ github.event.pull_request.html_url }}

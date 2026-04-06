@@ -1,0 +1,33 @@
+name: Automerge
+on:
+  workflow_call:
+    inputs:
+      pr:
+        default: ${{ github.event.pull_request.html_url }}
+        description: Specify the pr to automerge
+        required: false
+        type: string
+    secrets:
+      access-token:
+        required: true
+permissions:
+  contents: write
+  pull-requests: write
+jobs:
+  automerge-dependabot-prs:
+    name: Automerge Dependabot PRs
+    runs-on: ubuntu-latest
+    if: ${{ github.actor == 'dependabot[bot]' }}
+    env:
+      PR_URL: ${{ inputs.pr }}
+      GH_TOKEN: ${{ secrets.access-token }}
+    steps:
+      - name: Get Dependabot metadata
+        id: metadata
+        uses: dependabot/fetch-metadata@v2
+        with:
+          github-token: "${{ secrets.access-token }}"
+      - name: Checkout current repository
+        uses: actions/checkout@v6
+      - name: Enable auto-merge for Dependabot PRs
+        run: gh pr merge --auto --merge "$PR_URL"
