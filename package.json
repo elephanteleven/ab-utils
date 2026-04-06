@@ -27,7 +27,7 @@
     "mysql": "^2.18.1",
     "pretty-time": "^1.1.0",
     "serialize-error": "^13.0.1",
-    "uuid": "^8.3.2",
+    "uuid": "^13.0.0",
     "workerpool": "^8.0.0"
   },
   "devDependencies": {
