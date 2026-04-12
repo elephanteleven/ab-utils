@@ -1,0 +1,10 @@
+name: AB Installation
+on:
+  workflow_dispatch:
+jobs:
+  install-ab:
+    name: AB Installation
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install AB
+        uses: CruGlobal/ab-install-action@fix/useUP
