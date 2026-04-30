@@ -16,7 +16,7 @@
     "@opentelemetry/exporter-trace-otlp-grpc": "^0.216.0",
     "@opentelemetry/instrumentation-knex": "^0.60.0",
     "@opentelemetry/sdk-node": "^0.215.0",
-    "@sentry/node": "^7.69.0",
+    "@sentry/node": "^10.51.0",
     "@sentry/opentelemetry-node": "^7.72.0",
     "async": "^3.2.2",
     "bfj": "^7.0.2",
