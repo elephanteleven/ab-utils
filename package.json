@@ -12,7 +12,7 @@
   "repository": "github:CruGlobal/ab-utils",
   "dependencies": {
     "@opentelemetry/api": "^1.7.0",
-    "@opentelemetry/auto-instrumentations-node": "^0.74.0",
+    "@opentelemetry/auto-instrumentations-node": "^0.75.0",
     "@opentelemetry/exporter-trace-otlp-grpc": "^0.216.0",
     "@opentelemetry/instrumentation-knex": "^0.61.0",
     "@opentelemetry/sdk-node": "^0.217.0",
