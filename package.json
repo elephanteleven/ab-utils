@@ -13,7 +13,7 @@
   "dependencies": {
     "@opentelemetry/api": "^1.7.0",
     "@opentelemetry/auto-instrumentations-node": "^0.75.0",
-    "@opentelemetry/exporter-trace-otlp-grpc": "^0.217.0",
+    "@opentelemetry/exporter-trace-otlp-grpc": "^0.218.0",
     "@opentelemetry/instrumentation-knex": "^0.62.0",
     "@opentelemetry/sdk-node": "^0.218.0",
     "@sentry/node": "^10.51.0",
